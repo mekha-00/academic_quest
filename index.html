@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-cyberpunk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Academic Quest: CGPA Predictor & Level-Up Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        pixel: ['VT323', 'monospace'],
+        mono: ['Share Tech Mono', 'monospace'],
+        sans: ['Inter', 'sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+  /* ── BASE RESETS ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; min-height: 100vh; transition: background 0.4s, color 0.4s; }
+
+  /* ════════════════════════════════════════
+     THEME: CYBERPUNK SLATE (default)
+  ════════════════════════════════════════ */
+  .theme-cyberpunk {
+    --bg-base:        #0d1117;
+    --bg-card:        #161b22;
+    --bg-card2:       #1c2333;
+    --border:         #30363d;
+    --accent1:        #00ffe7;
+    --accent2:        #00c896;
+    --accent3:        #7c3aed;
+    --text-primary:   #e6edf3;
+    --text-secondary: #8b949e;
+    --text-accent:    #00ffe7;
+    --danger:         #ff4757;
+    --warn:           #ffa502;
+    --success:        #00c896;
+    --xp-bar:         linear-gradient(90deg,#00ffe7,#7c3aed);
+    --hp-bar:         linear-gradient(90deg,#ff4757,#ffa502,#00c896);
+    --boss-glow:      0 0 30px rgba(0,255,231,0.15);
+    --btn-primary:    #00ffe7;
+    --btn-text:       #0d1117;
+    --scrollbar-thumb:#30363d;
+    --font-display:   'VT323', monospace;
+  }
+
+  /* ════════════════════════════════════════
+     THEME: INFERNO MODE
+  ════════════════════════════════════════ */
+  .theme-inferno {
+    --bg-base:        #0a0a0a;
+    --bg-card:        #1a0a00;
+    --bg-card2:       #2a1000;
+    --border:         #5c2a00;
+    --accent1:        #ff6b35;
+    --accent2:        #ff3333;
+    --accent3:        #ff9500;
+    --text-primary:   #fff0e6;
+    --text-secondary: #cc7755;
+    --text-accent:    #ff6b35;
+    --danger:         #ff2222;
+    --warn:           #ffaa00;
+    --success:        #ff6b35;
+    --xp-bar:         linear-gradient(90deg,#ff6b35,#ff3333);
+    --hp-bar:         linear-gradient(90deg,#ff3333,#ff6b35,#ff9500);
+    --boss-glow:      0 0 30px rgba(255,107,53,0.25);
+    --btn-primary:    #ff6b35;
+    --btn-text:       #0a0a0a;
+    --scrollbar-thumb:#5c2a00;
+    --font-display:   'VT323', monospace;
+  }
+
+  /* ════════════════════════════════════════
+     THEME: MATRIX / HACKER GREEN
+  ════════════════════════════════════════ */
+  .theme-matrix {
+    --bg-base:        #000000;
+    --bg-card:        #001100;
+    --bg-card2:       #002200;
+    --border:         #003300;
+    --accent1:        #00ff41;
+    --accent2:        #00cc33;
+    --accent3:        #009900;
+    --text-primary:   #00ff41;
+    --text-secondary: #006600;
+    --text-accent:    #00ff41;
+    --danger:         #ff0000;
+    --warn:           #ffff00;
+    --success:        #00ff41;
+    --xp-bar:         linear-gradient(90deg,#00ff41,#00cc33);
+    --hp-bar:         linear-gradient(90deg,#00ff41,#009900);
+    --boss-glow:      0 0 30px rgba(0,255,65,0.2);
+    --btn-primary:    #00ff41;
+    --btn-text:       #000000;
+    --scrollbar-thumb:#003300;
+    --font-display:   'Share Tech Mono', monospace;
+  }
+
+  /* ── APPLY CSS VARS ── */
+  body { background: var(--bg-base); color: var(--text-primary); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .card:hover { border-color: var(--accent1); }
+  .card-inner { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+
+  /* ── ACCENT TEXT ── */
+  .text-accent { color: var(--text-accent); }
+  .text-sec { color: var(--text-secondary); }
+
+  /* ── PIXEL FONT ── */
+  .font-pixel { font-family: var(--font-display); }
+
+  /* ── GLOW ── */
+  .glow { text-shadow: 0 0 8px var(--accent1); }
+  .glow-box { box-shadow: var(--boss-glow); }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: var(--accent1);
+    text-shadow: 0 0 6px var(--accent1);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ── XP BAR ── */
+  .xp-bar-fill {
+    height: 100%;
+    background: var(--xp-bar);
+    border-radius: 9999px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .xp-bar-fill::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.2) 50%,transparent 100%);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+  /* ── HP BAR ── */
+  .hp-bar-fill {
+    height: 100%;
+    background: var(--hp-bar);
+    border-radius: 9999px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── BOSS CARD ── */
+  .boss-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 2px solid var(--accent1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--boss-glow);
+  }
+  .boss-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .boss-card > * { position: relative; z-index: 1; }
+
+  /* ── SLIDER ── */
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent1);
+    box-shadow: 0 0 6px var(--accent1);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+  /* ── INPUT / SELECT ── */
+  .field {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field:focus { border-color: var(--accent1); box-shadow: 0 0 0 2px rgba(0,255,231,0.15); }
+
+  /* ── BTN ── */
+  .btn-primary {
+    background: var(--btn-primary);
+    color: var(--btn-text);
+    font-weight: 700;
+    padding: 0.5rem 1.1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-accent);
+    border: 1px solid var(--accent1);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: var(--accent1); color: var(--btn-text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+  .btn-danger:hover { background: var(--danger); color: white; }
+
+  /* ── AVATAR OPTION ── */
+  .avatar-opt {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    background: var(--bg-card2);
+  }
+  .avatar-opt:hover { border-color: var(--accent1); }
+  .avatar-opt.selected { border-color: var(--accent1); background: rgba(0,255,231,0.08); box-shadow: 0 0 12px rgba(0,255,231,0.2); }
+
+  /* ── SHIELD BADGE ── */
+  .shield-active {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(0,200,150,0.15);
+    border: 1px solid var(--success);
+    border-radius: 9999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    color: var(--success);
+    font-weight: 600;
+  }
+  .shield-broken {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255,71,87,0.15);
+    border: 1px solid var(--danger);
+    border-radius: 9999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    color: var(--danger);
+    font-weight: 600;
+    animation: pulse-danger 1.2s infinite;
+  }
+  @keyframes pulse-danger {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(255,71,87,0.5); }
+    50%{ box-shadow: 0 0 0 6px rgba(255,71,87,0); }
+  }
+
+  /* ── LOW ATT WARNING ── */
+  .att-warning {
+    color: var(--danger);
+    font-size: 0.72rem;
+    font-weight: 600;
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── SUBJECT CARD ── */
+  .subject-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.3s;
+  }
+  .subject-card.danger-border { border-color: var(--danger); }
+
+  /* ── THEME SHOP CARD ── */
+  .theme-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .theme-card:hover { border-color: var(--accent1); transform: translateY(-2px); }
+  .theme-card.owned { border-color: var(--success); }
+  .theme-card.active-theme { border-color: var(--accent1); box-shadow: 0 0 16px rgba(0,255,231,0.3); }
+
+  /* ── TASK LIST ── */
+  .task-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 6px;
+    background: var(--bg-card2);
+    margin-bottom: 0.4rem;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .task-item.done { opacity: 0.5; }
+  .task-item.done .task-text { text-decoration: line-through; }
+
+  /* ── BOSS SPRITE ── */
+  .boss-sprite {
+    font-size: 5rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 12px var(--accent1));
+    animation: float 3s ease-in-out infinite;
+    display: block;
+    text-align: center;
+  }
+  @keyframes float {
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-8px); }
+  }
+  .boss-hurt { animation: hurt 0.4s ease; }
+  @keyframes hurt {
+    0%{ transform: translateX(0) scale(1); filter: drop-shadow(0 0 20px red); }
+    25%{ transform: translateX(-8px) scale(1.1); }
+    75%{ transform: translateX(8px) scale(1.1); }
+    100%{ transform: translateX(0) scale(1); filter: drop-shadow(0 0 12px var(--accent1)); }
+  }
+
+  /* ── DAMAGE FLOATER ── */
+  .dmg-float {
+    position: absolute;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--danger);
+    text-shadow: 0 0 8px var(--danger);
+    pointer-events: none;
+    animation: floatUp 1.2s ease-out forwards;
+    z-index: 99;
+  }
+  @keyframes floatUp {
+    0%{ opacity:1; transform: translateY(0) scale(1); }
+    100%{ opacity:0; transform: translateY(-60px) scale(1.4); }
+  }
+
+  /* ── LEVEL UP FLASH ── */
+  .level-up-flash {
+    animation: levelFlash 0.6s ease;
+  }
+  @keyframes levelFlash {
+    0%,100%{ filter: brightness(1); }
+    50%{ filter: brightness(2.5); }
+  }
+
+  /* ── NOTIFICATION TOAST ── */
+  #toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--accent1);
+    border-radius: 10px;
+    padding: 0.75rem 1.2rem;
+    color: var(--text-accent);
+    font-weight: 600;
+    font-size: 0.875rem;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    max-width: 300px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── REQUIRED SCORE TAG ── */
+  .req-score {
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  .req-score.possible { background: rgba(0,200,150,0.15); color: var(--success); border: 1px solid var(--success); }
+  .req-score.tight { background: rgba(255,165,0,0.15); color: var(--warn); border: 1px solid var(--warn); }
+  .req-score.impossible { background: rgba(255,71,87,0.15); color: var(--danger); border: 1px solid var(--danger); }
+
+  /* ── GRID LAYOUT ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media(min-width:768px){
+    .main-grid {
+      grid-template-columns: 320px 1fr;
+    }
+  }
+  @media(min-width:1280px){
+    .main-grid {
+      grid-template-columns: 300px 1fr 300px;
+    }
+  }
+
+  /* ── MATRIX RAIN (matrix theme only) ── */
+  .theme-matrix body { position: relative; }
+  #matrix-canvas {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events: none; z-index: 0; opacity: 0.04;
+  }
+
+  /* ── LABEL ── */
+  label { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 0.04em; font-weight: 500; margin-bottom: 0.25rem; display: block; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0.75rem 0; }
+
+  /* nav ── */
+  .nav-bar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top:0; z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ── GRADE BADGE ── */
+  .grade-badge {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    min-width: 2.2rem;
+    text-align: center;
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid var(--accent1);
+    color: var(--accent1);
+    background: rgba(0,255,231,0.07);
+  }
+
+  /* progress ring */
+  .ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-label { position:absolute; font-family: var(--font-display); font-size: 1.4rem; color: var(--accent1); }
+
+  /* ── GOLD COUNTER ── */
+  .gold-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255,165,2,0.15);
+    border: 1px solid var(--warn);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--warn);
+    font-weight: 700;
+  }
+
+  /* boss hp flicker when low */
+  .boss-critical .hp-bar-fill {
+    animation: hpFlicker 0.8s infinite;
+  }
+  @keyframes hpFlicker {
+    0%,100%{ opacity:1; } 50%{ opacity:0.6; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix-canvas" style="display:none"></canvas>
+
+<!-- ─────────── NAVBAR ─────────── -->
+<nav class="nav-bar">
+  <div class="flex items-center gap-3">
+    <span class="font-pixel text-2xl glow" style="color:var(--accent1)">⚡ ACADEMIC QUEST</span>
+    <span class="text-xs font-mono" style="color:var(--text-secondary)">v2.0</span>
+  </div>
+  <div class="flex items-center gap-2 flex-wrap">
+    <span class="gold-pill" id="nav-gold">🪙 0 G</span>
+    <span id="nav-xp-label" class="text-xs font-mono" style="color:var(--text-secondary)">XP: 0</span>
+    <span id="nav-level" class="font-pixel text-xl glow" style="color:var(--accent1)">LVL 1</span>
+  </div>
+</nav>
+
+<!-- ─────────── MAIN GRID ─────────── -->
+<main class="main-grid" style="padding:1rem; max-width:1600px; margin:0 auto;">
+
+  <!-- ══════════ COL 1: CHARACTER SHEET ══════════ -->
+  <aside>
+    <!-- Profile Card -->
+    <div class="card glow-box" style="margin-bottom:1rem;">
+      <div class="section-header">👤 CHARACTER SHEET</div>
+
+      <div style="margin-bottom:0.75rem;">
+        <label>Player Name</label>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <input id="player-name" class="field" type="text" placeholder="Enter your name…" style="flex:1;" />
+          <button
+            class="btn-danger"
+            style="white-space:nowrap; padding:0.45rem 0.7rem; font-size:0.75rem; flex-shrink:0;"
+            title="Wipe all save data and start fresh"
+            onclick="resetGame()">
+            🗑 Reset
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:0.75rem;">
+        <label>Current Semester</label>
+        <select id="player-semester" class="field">
+          <option value="1">Semester 1 — The Awakening</option>
+          <option value="2">Semester 2 — The Trial</option>
+          <option value="3">Semester 3 — The Crucible</option>
+          <option value="4">Semester 4 — The Midway</option>
+          <option value="5">Semester 5 — The Deep Dive</option>
+          <option value="6">Semester 6 — The Reckoning</option>
+          <option value="7">Semester 7 — The Final Arc</option>
+          <option value="8">Semester 8 — The Legend</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label>Choose Your Class</label>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-top:0.3rem;">
+          <div class="avatar-opt" data-avatar="🧙‍♂️" onclick="selectAvatar('🧙‍♂️',this)">
+            <div style="font-size:1.8rem">🧙‍♂️</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Code Wizard</div>
+          </div>
+          <div class="avatar-opt" data-avatar="⚔️" onclick="selectAvatar('⚔️',this)">
+            <div style="font-size:1.8rem">⚔️</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Design Knight</div>
+          </div>
+          <div class="avatar-opt" data-avatar="🏹" onclick="selectAvatar('🏹',this)">
+            <div style="font-size:1.8rem">🏹</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Math Rogue</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-top:0.5rem;">
+          <div class="avatar-opt" data-avatar="🔬" onclick="selectAvatar('🔬',this)">
+            <div style="font-size:1.8rem">🔬</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Lab Sage</div>
+          </div>
+          <div class="avatar-opt" data-avatar="🎮" onclick="selectAvatar('🎮',this)">
+            <div style="font-size:1.8rem">🎮</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Dev Warrior</div>
+          </div>
+          <div class="avatar-opt" data-avatar="📐" onclick="selectAvatar('📐',this)">
+            <div style="font-size:1.8rem">📐</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem">Arch Druid</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Status Panel -->
+      <div id="status-panel">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <div id="avatar-display" style="font-size:3rem; line-height:1; filter:drop-shadow(0 0 8px var(--accent1))">🧙‍♂️</div>
+          <div>
+            <div id="profile-name" class="font-pixel text-xl glow" style="color:var(--accent1)">HERO</div>
+            <div id="profile-sem" style="font-size:0.75rem; color:var(--text-secondary)">Semester 1</div>
+          </div>
+        </div>
+
+        <!-- Level & XP -->
+        <div style="margin-bottom:0.6rem;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.3rem;">
+            <span class="font-pixel" style="font-size:1.1rem; color:var(--accent1)">LEVEL <span id="display-level">1</span></span>
+            <span style="font-size:0.72rem; color:var(--text-secondary)"><span id="display-xp">0</span> / <span id="display-xp-max">100</span> XP</span>
+          </div>
+          <div style="height:10px; background:var(--border); border-radius:9999px; overflow:hidden;">
+            <div id="xp-bar" class="xp-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Shield Status -->
+        <div id="shield-status" class="shield-active">🛡️ Shield Buff Active</div>
+
+        <hr class="divider" />
+
+        <!-- Stats -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:0.8rem;">
+          <div class="card-inner">
+            <div style="color:var(--text-secondary); font-size:0.7rem; margin-bottom:0.2rem;">CURRENT GPA</div>
+            <div id="stat-gpa" class="font-pixel" style="font-size:1.6rem; color:var(--accent1)">—</div>
+          </div>
+          <div class="card-inner">
+            <div style="color:var(--text-secondary); font-size:0.7rem; margin-bottom:0.2rem;">SUBJECTS</div>
+            <div id="stat-subjects" class="font-pixel" style="font-size:1.6rem; color:var(--accent2)">0</div>
+          </div>
+          <div class="card-inner">
+            <div style="color:var(--text-secondary); font-size:0.7rem; margin-bottom:0.2rem;">TOTAL CREDITS</div>
+            <div id="stat-credits" class="font-pixel" style="font-size:1.6rem; color:var(--accent3)">0</div>
+          </div>
+          <div class="card-inner">
+            <div style="color:var(--text-secondary); font-size:0.7rem; margin-bottom:0.2rem;">GOLD</div>
+            <div id="stat-gold" class="font-pixel" style="font-size:1.6rem; color:var(--warn)">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Tasks -->
+    <div class="card">
+      <div class="section-header">✅ DAILY QUESTS</div>
+      <div id="task-list"></div>
+      <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+        <input id="new-task-input" class="field" type="text" placeholder="Add a quest…" style="flex:1;" onkeydown="if(event.key==='Enter')addTask()" />
+        <button class="btn-primary" onclick="addTask()">+</button>
+      </div>
+      <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:0.5rem;">Complete quests to earn +10 XP & +5 Gold each</div>
+    </div>
+  </aside>
+
+  <!-- ══════════ COL 2: BOSS + SUBJECTS ══════════ -->
+  <section style="display:flex; flex-direction:column; gap:1rem;">
+
+    <!-- BOSS BATTLE -->
+    <div class="boss-card" id="boss-card">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:1rem;">
+        <div style="flex:0 0 auto; position:relative;" id="boss-sprite-wrap">
+          <span id="boss-sprite" class="boss-sprite">🐉</span>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+            <div>
+              <div class="font-pixel glow" style="font-size:1.5rem; color:var(--accent1)" id="boss-name">THE BACKLOG DRAGON</div>
+              <div style="font-size:0.75rem; color:var(--text-secondary)" id="boss-subtitle">Semester Boss — Defeat it by studying hard!</div>
+            </div>
+            <div id="boss-hp-text" class="font-pixel" style="font-size:1.2rem; color:var(--danger)">HP: 100%</div>
+          </div>
+
+          <!-- HP bar -->
+          <div style="background:var(--border); border-radius:9999px; height:18px; overflow:hidden; position:relative;">
+            <div id="boss-hp-bar" class="hp-bar-fill" style="width:100%"></div>
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:white; text-shadow: 0 0 4px #000;">
+              <span id="boss-hp-label">100 / 100</span>
+            </div>
+          </div>
+
+          <!-- Boss phase message -->
+          <div id="boss-phase" style="margin-top:0.5rem; font-size:0.8rem; color:var(--text-secondary); font-style:italic;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GPA TARGET + SUBJECT MANAGER -->
+    <div class="card">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem;">
+        <div class="section-header" style="margin-bottom:0;">📚 SUBJECT MANAGER</div>
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <div>
+            <label>🎯 Target Semester GPA (10.0 scale)</label>
+            <input id="target-gpa" class="field" type="number" min="0" max="10" step="0.1" value="8.5" style="width:120px;" oninput="recalcAll()" />
+          </div>
+          <button class="btn-primary" onclick="addSubject()">+ Add Subject</button>
+        </div>
+      </div>
+
+      <!-- Subject cards -->
+      <div id="subject-list">
+        <div style="text-align:center; padding:2rem; color:var(--text-secondary);">
+          <div style="font-size:2rem; margin-bottom:0.5rem;">📖</div>
+          <div>No subjects yet. Click <strong>+ Add Subject</strong> to begin your quest!</div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div id="gpa-summary" class="card-inner" style="display:none; margin-top:0.75rem;">
+        <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center;">
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-secondary);">PROJECTED GPA (current internals)</div>
+            <div id="proj-gpa" class="font-pixel" style="font-size:2rem; color:var(--accent1);">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-secondary);">TARGET GPA</div>
+            <div id="target-gpa-display" class="font-pixel" style="font-size:2rem; color:var(--accent2);">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-secondary);">STATUS</div>
+            <div id="gpa-status-text" style="font-size:0.9rem; font-weight:600;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ COL 3: SHOP + ACHIEVEMENTS ══════════ -->
+  <aside>
+    <!-- RESOURCE SHOP -->
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="section-header">🏪 RESOURCE SHOP</div>
+
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <span class="gold-pill">🪙 <span id="shop-gold">0</span> Gold</span>
+        <span style="font-size:0.75rem; color:var(--text-secondary);">Earn gold by completing quests & raising marks</span>
+      </div>
+
+      <!-- Theme cards -->
+      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+
+        <!-- Cyberpunk -->
+        <div class="theme-card" id="theme-card-cyberpunk">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem;">⚡ Cyberpunk Slate</div>
+              <div style="font-size:0.7rem; color:var(--text-secondary);">Neon cyan · Emerald · Dark slate</div>
+              <div style="display:flex; gap:4px; margin-top:6px;">
+                <span style="width:14px;height:14px;border-radius:3px;background:#00ffe7;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#00c896;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#7c3aed;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#0d1117;border:1px solid #30363d;display:inline-block;"></span>
+              </div>
+            </div>
+            <div>
+              <span id="btn-cyberpunk" style="font-size:0.75rem; color:var(--success); font-weight:700;">✓ DEFAULT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inferno -->
+        <div class="theme-card" id="theme-card-inferno">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem;">🔥 Inferno Mode</div>
+              <div style="font-size:0.7rem; color:var(--text-secondary);">Burning orange · Red arcade · Charcoal</div>
+              <div style="display:flex; gap:4px; margin-top:6px;">
+                <span style="width:14px;height:14px;border-radius:3px;background:#ff6b35;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#ff3333;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#ff9500;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#0a0a0a;border:1px solid #5c2a00;display:inline-block;"></span>
+              </div>
+            </div>
+            <div id="btn-inferno">
+              <button class="btn-ghost" onclick="buyTheme('inferno')" id="inferno-action-btn">🔥 Unlock — 50G</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matrix -->
+        <div class="theme-card" id="theme-card-matrix">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem;">💻 Retro Matrix</div>
+              <div style="font-size:0.7rem; color:var(--text-secondary);">Lime green · Monospace · Pure black</div>
+              <div style="display:flex; gap:4px; margin-top:6px;">
+                <span style="width:14px;height:14px;border-radius:3px;background:#00ff41;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#00cc33;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#009900;display:inline-block;"></span>
+                <span style="width:14px;height:14px;border-radius:3px;background:#000000;border:1px solid #003300;display:inline-block;"></span>
+              </div>
+            </div>
+            <div id="btn-matrix">
+              <button class="btn-ghost" onclick="buyTheme('matrix')" id="matrix-action-btn">💻 Unlock — 80G</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="card">
+      <div class="section-header">🏆 ACHIEVEMENTS</div>
+      <div id="achievements-list" style="display:flex; flex-direction:column; gap:0.4rem;"></div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let state = {
+  name: 'Hero',
+  semester: 1,
+  avatar: '🧙‍♂️',
+  xp: 0,
+  gold: 0,
+  level: 1,
+  targetGpa: 8.5,
+  subjects: [],
+  tasks: [],
+  ownedThemes: ['cyberpunk'],
+  activeTheme: 'cyberpunk',
+  bossHp: 100,
+  achievements: [],
+  unlockedAchievements: [],
+};
+
+// Frozen snapshot of the initial defaults — used by resetGame()
+const DEFAULT_STATE = Object.freeze({
+  name: 'Hero',
+  semester: 1,
+  avatar: '🧙‍♂️',
+  xp: 0,
+  gold: 0,
+  level: 1,
+  targetGpa: 8.5,
+  subjects: [],
+  tasks: [],
+  ownedThemes: ['cyberpunk'],
+  activeTheme: 'cyberpunk',
+  bossHp: 100,
+  achievements: [],
+  unlockedAchievements: [],
+  _lastInternalGold: 0,
+});
+
+/* ═══════════════════════════════════════════
+   RESET GAME
+   ─────────────────────────────────────────
+   1. Confirm with the player (one-click safety gate).
+   2. Wipe localStorage completely.
+   3. Deep-copy DEFAULT_STATE back into the live `state` object
+      so every reference already held by the closures is valid.
+   4. Reset the id counters, form fields, avatar UI, and theme.
+   5. Call recalcAll() → updates every panel without a page reload.
+═══════════════════════════════════════════ */
+function resetGame() {
+  const confirmed = window.confirm(
+    '⚠️ Fresh Start?\n\nThis will permanently wipe your Level, XP, Gold, subjects, quests, themes and achievements.\n\nAre you sure?'
+  );
+  if (!confirmed) return;
+
+  // 1. Nuke localStorage
+  localStorage.removeItem('aq_state');
+
+  // 2. Reset live state to defaults (deep copy so arrays are fresh)
+  Object.assign(state, JSON.parse(JSON.stringify(DEFAULT_STATE)));
+
+  // 3. Reset id counters
+  subjectIdCounter = 0;
+  taskIdCounter    = 0;
+
+  // 4. Reset form fields
+  document.getElementById('player-name').value     = state.name;
+  document.getElementById('player-semester').value = state.semester;
+  document.getElementById('target-gpa').value      = state.targetGpa;
+
+  // 5. Reset avatar selection UI
+  document.querySelectorAll('.avatar-opt').forEach(el => {
+    el.classList.toggle('selected', el.dataset.avatar === state.avatar);
+  });
+
+  // 6. Restore default theme (also stops matrix rain if it was active)
+  applyTheme(state.activeTheme);
+
+  // 7. Re-render every panel
+  renderTasks();
+  renderSubjects();
+  recalcAll();          // → updates boss, GPA, shield, gold, XP bar, achievements
+  renderAchievements();
+  updateShopUI();
+  updateProfileUI();
+
+  showToast('🔄 Fresh Start! Your quest begins anew, adventurer.');
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const XP_PER_LEVEL = 100;
+const THEME_COSTS  = { cyberpunk: 0, inferno: 50, matrix: 80 };
+
+const BOSS_PHASES = [
+  { hp: 100, name: 'THE BACKLOG DRAGON',     sprite: '🐉', subtitle: 'Semester Boss — It laughs at your procrastination!' },
+  { hp: 75,  name: 'THE FINAL EXAM TITAN',   sprite: '👹', subtitle: 'Phase 2 — The Titan awakens from its slumber!' },
+  { hp: 50,  name: 'THE DEADLINE LICH',      sprite: '💀', subtitle: 'Phase 3 — Dark magic corrupts your schedule!' },
+  { hp: 25,  name: 'THE GPA WRAITH',         sprite: '👻', subtitle: 'Phase 4 — A mere shadow of its former power!' },
+  { hp: 0,   name: '⚡ BOSS DEFEATED!',       sprite: '🌟', subtitle: 'YOU WIN — Semester conquered! Claim your glory!' },
+];
+
+const ALL_ACHIEVEMENTS = [
+  { id:'first_subject',  icon:'📖', name:'First Scroll',      desc:'Add your first subject',        check: s => s.subjects.length >= 1 },
+  { id:'five_subjects',  icon:'📚', name:'Scholar',           desc:'Add 5 subjects',                check: s => s.subjects.length >= 5 },
+  { id:'all_att',        icon:'🛡️', name:'Shield Bearer',     desc:'All subjects above 75% attendance', check: s => s.subjects.length>0 && s.subjects.every(x=>x.attendance>=75) },
+  { id:'max_internal',   icon:'💯', name:'Internal Legend',   desc:'Set any subject internals to 50', check: s => s.subjects.some(x=>x.internals===50) },
+  { id:'boss_50',        icon:'⚔️', name:'Boss Slayer',       desc:'Bring boss HP below 50%',       check: s => s.bossHp < 50 },
+  { id:'boss_0',         icon:'🏆', name:'Semester Champion', desc:'Defeat the semester boss!',      check: s => s.bossHp <= 0 },
+  { id:'level5',         icon:'🌟', name:'Rising Star',       desc:'Reach Level 5',                  check: s => s.level >= 5 },
+  { id:'gold100',        icon:'🪙', name:'Gold Hoarder',      desc:'Accumulate 100 Gold',            check: s => s.gold >= 100 },
+  { id:'task5',          icon:'✅', name:'Quest Master',      desc:'Complete 5 daily quests',        check: s => s.tasks.filter(t=>t.done).length >= 5 },
+  { id:'theme_unlock',   icon:'🎨', name:'Skin Collector',    desc:'Unlock any theme',               check: s => s.ownedThemes.length > 1 },
+];
+
+/* ═══════════════════════════════════════════
+   LOCAL STORAGE
+═══════════════════════════════════════════ */
+function saveState() {
+  try { localStorage.setItem('aq_state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem('aq_state');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      state = { ...state, ...saved };
+    }
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   XP / LEVELLING
+═══════════════════════════════════════════ */
+function addXP(amount) {
+  const oldLevel = state.level;
+  state.xp += amount;
+  while (state.xp >= xpForNextLevel(state.level)) {
+    state.xp -= xpForNextLevel(state.level);
+    state.level++;
+  }
+  if (state.level > oldLevel) {
+    showToast(`🌟 LEVEL UP! You are now Level ${state.level}!`);
+    document.getElementById('display-level').classList.add('level-up-flash');
+    setTimeout(() => document.getElementById('display-level').classList.remove('level-up-flash'), 700);
+    state.gold += state.level * 10; // Level-up gold bonus
+  }
+  updateProfileUI();
+  saveState();
+}
+
+function xpForNextLevel(lvl) { return XP_PER_LEVEL * lvl; }
+
+/* ═══════════════════════════════════════════
+   AVATAR / PROFILE
+═══════════════════════════════════════════ */
+function selectAvatar(emoji, el) {
+  document.querySelectorAll('.avatar-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.avatar = emoji;
+  updateProfileUI();
+  saveState();
+}
+
+function updateProfileUI() {
+  const name = document.getElementById('player-name').value.trim() || 'Hero';
+  state.name = name;
+  state.semester = parseInt(document.getElementById('player-semester').value) || 1;
+
+  document.getElementById('avatar-display').textContent = state.avatar;
+  document.getElementById('profile-name').textContent = name.toUpperCase();
+  document.getElementById('profile-sem').textContent = `Semester ${state.semester}`;
+  document.getElementById('display-level').textContent = state.level;
+  document.getElementById('nav-level').textContent = `LVL ${state.level}`;
+  document.getElementById('nav-xp-label').textContent = `XP: ${state.xp}`;
+
+  const maxXP = xpForNextLevel(state.level);
+  document.getElementById('display-xp').textContent = state.xp;
+  document.getElementById('display-xp-max').textContent = maxXP;
+  document.getElementById('xp-bar').style.width = `${Math.min(100, (state.xp / maxXP) * 100)}%`;
+
+  document.getElementById('stat-gold').textContent = state.gold;
+  document.getElementById('shop-gold').textContent = state.gold;
+  document.getElementById('nav-gold').innerHTML = `🪙 ${state.gold} G`;
+
+  // Subjects stats
+  document.getElementById('stat-subjects').textContent = state.subjects.length;
+  const totalCredits = state.subjects.reduce((a,s)=>a+s.credits,0);
+  document.getElementById('stat-credits').textContent = totalCredits;
+}
+
+/* ═══════════════════════════════════════════
+   GPA LOGIC  — University Exam Rules
+   ─────────────────────────────────────────
+   • Internals  : 0–50  (safety min = 35)
+   • Finals     : 0–100 (university pass minimum = 40/100)
+   • Subject %  : Internals + (Finals / 2)   → gives a value out of 100
+   • Grade table maps that % to a 10-pt GP
+   • CGPA       : Σ(credits × GP) / Σcredits
+═══════════════════════════════════════════ */
+
+const INTERNAL_SAFETY_MIN = 35;   // warn if internals < this
+const FINALS_PASS_MIN     = 40;   // university hard minimum on finals (out of 100)
+const FINALS_MAX          = 100;
+
+// Grade-point table (based on combined subject %)
+const GRADE_TABLE = [
+  { min: 90, gp: 10, grade: 'O'  },
+  { min: 80, gp:  9, grade: 'A+' },
+  { min: 70, gp:  8, grade: 'A'  },
+  { min: 60, gp:  7, grade: 'B+' },
+  { min: 50, gp:  6, grade: 'B'  },
+  { min: 45, gp:  5, grade: 'C'  },
+  { min: 40, gp:  4, grade: 'D'  },
+  { min:  0, gp:  0, grade: 'F'  },
+];
+
+// Combined subject % → grade point & letter
+function totalToGradePoint(pct) {
+  for (const row of GRADE_TABLE) {
+    if (pct >= row.min) return { gp: row.gp, grade: row.grade };
+  }
+  return { gp: 0, grade: 'F' };
+}
+
+/*
+  computeRequiredFinal(subject, targetGpa)
+  ─────────────────────────────────────────
+  Finds the exact finals score (out of 100) a student needs so that
+  their subject % hits the threshold for the target GPA's grade point.
+
+  subject % = internals + (finals / 2)
+
+  We derive the MINIMUM subject % needed to achieve ≥ targetGpa (rounded
+  up to the nearest whole GP row), then back-calculate:
+    finals_needed = (minPct − internals) × 2
+
+  Special cases:
+  1. finals_needed < FINALS_PASS_MIN (40)  → enforce minimum, show notice
+  2. finals_needed > FINALS_MAX (100)      → mathematically impossible
+  3. finals_needed ≤ 0                     → already secured by internals
+*/
+function computeRequiredFinal(subject, targetGpa) {
+  const internals = subject.internals; // 0–50
+
+  // Find the minimum subject-% threshold that satisfies the target GPA.
+  // We look for the lowest GP in the table that is ≥ ceil(targetGpa),
+  // then take that row's minimum %.
+  const neededGP  = Math.min(10, Math.ceil(targetGpa));
+  const gpRow     = GRADE_TABLE.find(r => r.gp >= neededGP) || GRADE_TABLE[GRADE_TABLE.length - 2];
+  const minPct    = gpRow ? gpRow.min : 40;
+
+  // Raw finals score needed
+  const rawFinals = (minPct - internals) * 2;
+
+  if (rawFinals > FINALS_MAX) {
+    return { status: 'impossible', needed: null, enforced: false };
+  }
+
+  // Enforce university pass minimum
+  const enforcedMin = rawFinals < FINALS_PASS_MIN;
+  const needed      = Math.max(rawFinals, FINALS_PASS_MIN);
+
+  if (rawFinals <= 0) {
+    // Internals alone exceed the grade threshold — still need ≥40 to pass
+    return { status: 'secured', needed: FINALS_PASS_MIN, enforced: true };
+  }
+
+  // Classify comfort level
+  let comfort = 'comfortable';
+  if (needed > 75) comfort = 'tight';
+  if (needed > 90) comfort = 'hard';
+
+  return { status: comfort, needed, enforced: enforcedMin };
+}
+
+/*
+  computeGPA(subjects)
+  ─────────────────────
+  Projected GPA assuming student scores 50/100 on finals (average).
+  subject % = internals + (50 / 2) = internals + 25
+*/
+function computeGPA(subjects) {
+  if (!subjects.length) return null;
+  let totalCreditsXGP = 0;
+  let totalCredits    = 0;
+  subjects.forEach(s => {
+    const pct = s.internals + 25;           // assume 50/100 on finals → +25
+    const { gp } = totalToGradePoint(pct);
+    totalCreditsXGP += gp * s.credits;
+    totalCredits    += s.credits;
+  });
+  if (!totalCredits) return null;
+  return (totalCreditsXGP / totalCredits).toFixed(2);
+}
+
+/* ═══════════════════════════════════════════
+   BOSS HP
+═══════════════════════════════════════════ */
+function computeBossHp() {
+  if (!state.subjects.length) return 100;
+  // Each subject contributes. If internals = 50 and attendance >= 75, full damage.
+  let totalDamage = 0;
+  const maxDamage = state.subjects.length * 100; // 100 pts per subject
+  state.subjects.forEach(s => {
+    const internalDmg  = (s.internals / 50) * 60; // up to 60 pts
+    const attendanceDmg = s.attendance >= 75 ? 40 : (s.attendance / 75) * 20; // up to 40 pts
+    totalDamage += internalDmg + attendanceDmg;
+  });
+  const pct = Math.max(0, 100 - Math.round((totalDamage / maxDamage) * 100));
+  return pct;
+}
+
+function updateBoss(oldHp, newHp) {
+  const bossCard = document.getElementById('boss-card');
+  // Find phase
+  let phase = BOSS_PHASES[0];
+  for (let i = BOSS_PHASES.length - 1; i >= 0; i--) {
+    if (newHp <= BOSS_PHASES[i].hp) { phase = BOSS_PHASES[i]; break; }
+  }
+  // Actually pick correct phase bracket
+  for (let i = 0; i < BOSS_PHASES.length - 1; i++) {
+    if (newHp <= BOSS_PHASES[i].hp && newHp > BOSS_PHASES[i+1].hp) {
+      phase = BOSS_PHASES[i]; break;
+    }
+    if (newHp <= BOSS_PHASES[BOSS_PHASES.length-1].hp) {
+      phase = BOSS_PHASES[BOSS_PHASES.length-1];
+    }
+  }
+  // Better phase logic
+  let activePhase = BOSS_PHASES[0];
+  if (newHp <= 0)  activePhase = BOSS_PHASES[4];
+  else if (newHp <= 25) activePhase = BOSS_PHASES[3];
+  else if (newHp <= 50) activePhase = BOSS_PHASES[2];
+  else if (newHp <= 75) activePhase = BOSS_PHASES[1];
+  else                  activePhase = BOSS_PHASES[0];
+
+  document.getElementById('boss-name').textContent = activePhase.name;
+  document.getElementById('boss-subtitle').textContent = activePhase.subtitle;
+  document.getElementById('boss-sprite').textContent = activePhase.sprite;
+  document.getElementById('boss-hp-bar').style.width = `${Math.max(0, newHp)}%`;
+  document.getElementById('boss-hp-text').textContent = `HP: ${Math.max(0, newHp)}%`;
+  document.getElementById('boss-hp-label').textContent = `${Math.max(0,newHp)} / 100`;
+
+  // Critical flash
+  if (newHp <= 25 && newHp > 0) {
+    bossCard.classList.add('boss-critical');
+  } else {
+    bossCard.classList.remove('boss-critical');
+  }
+
+  // Damage floater
+  if (oldHp !== null && newHp < oldHp) {
+    const dmg = oldHp - newHp;
+    spawnDamageFloat(dmg);
+    // Hurt animation
+    const sprite = document.getElementById('boss-sprite');
+    sprite.classList.remove('boss-hurt');
+    void sprite.offsetWidth;
+    sprite.classList.add('boss-hurt');
+    setTimeout(() => sprite.classList.remove('boss-hurt'), 450);
+  }
+
+  // Phase message
+  const msgs = {
+    0: '💬 "Your internals mean nothing to me, mortal!"',
+    1: '💬 "I sense your resolve strengthening… but the finals await!"',
+    2: '💬 "Impossible… how are you this prepared?!"',
+    3: '💬 "I am fading… but the GPA wraith cannot be denied!"',
+    4: '🎉 The semester boss has been vanquished! You are a legend!',
+  };
+  const msgIdx = newHp <= 0 ? 4 : newHp <= 25 ? 3 : newHp <= 50 ? 2 : newHp <= 75 ? 1 : 0;
+  document.getElementById('boss-phase').textContent = msgs[msgIdx];
+}
+
+function spawnDamageFloat(dmg) {
+  const wrap = document.getElementById('boss-sprite-wrap');
+  const el = document.createElement('div');
+  el.className = 'dmg-float';
+  el.textContent = `-${dmg}`;
+  el.style.left = '50%';
+  el.style.top  = '0';
+  el.style.transform = 'translateX(-50%)';
+  wrap.style.position = 'relative';
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+/* ═══════════════════════════════════════════
+   SUBJECT MANAGER
+═══════════════════════════════════════════ */
+let subjectIdCounter = 0;
+
+function addSubject() {
+  const id = ++subjectIdCounter;
+  const sub = { id, name: `Subject ${id}`, credits: 3, attendance: 80, internals: 25 };
+  state.subjects.push(sub);
+  renderSubjects();
+  recalcAll();
+  addXP(5);
+  showToast(`📖 Subject ${id} added! +5 XP`);
+  saveState();
+}
+
+function removeSubject(id) {
+  state.subjects = state.subjects.filter(s => s.id !== id);
+  // recalcAll → checkAchievements which handles first_subject revocation + saveState
+  recalcAll();
+}
+
+function updateSubject(id, field, value) {
+  const sub = state.subjects.find(s => s.id === id);
+  if (!sub) return;
+  sub[field] = field === 'name' ? value : parseFloat(value);
+  // XP for raising internals
+  if (field === 'internals') {
+    // small XP pop
+  }
+  recalcAll();
+  saveState();
+}
+
+function renderSubjects() {
+  const list = document.getElementById('subject-list');
+  if (!state.subjects.length) {
+    list.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-secondary);"><div style="font-size:2rem;margin-bottom:0.5rem;">📖</div><div>No subjects yet. Click <strong>+ Add Subject</strong> to begin your quest!</div></div>`;
+    return;
+  }
+  list.innerHTML = '';
+  state.subjects.forEach(sub => {
+    const lowAtt = sub.attendance < 75;
+    const card = document.createElement('div');
+    card.className = `subject-card${lowAtt ? ' danger-border' : ''}`;
+    card.id = `sub-card-${sub.id}`;
+
+    // compute required final using new university rules
+    const targetGpa = parseFloat(document.getElementById('target-gpa').value) || 8.5;
+    const req       = computeRequiredFinal(sub, targetGpa);
+    // Projected grade uses assumed 50/100 finals → +25 to internals
+    const { gp, grade } = totalToGradePoint(sub.internals + 25);
+
+    // Internals safety warning (below 35/50)
+    const lowInternals = sub.internals < INTERNAL_SAFETY_MIN;
+
+    let reqClass = 'impossible';
+    let reqMsg   = '';
+    if (req.status === 'impossible') {
+      reqMsg   = `🚫 Mathematically Impossible — even 100/100 on finals cannot reach your target GPA with ${sub.internals}/50 internals. Raise your internal marks!`;
+      reqClass = 'impossible';
+    } else if (req.status === 'secured') {
+      reqMsg   = `✅ Internals already exceed the grade threshold! You still need a minimum of ${FINALS_PASS_MIN}/100 on the written exam to pass (University Minimum Rule).`;
+      reqClass = 'possible';
+    } else {
+      const needDisplay = req.needed;
+      if (req.enforced) {
+        // Math said < 40, but university rule forces 40
+        reqMsg  = `ℹ️ Your target GPA only needs ${Math.round((req.needed))}pts, but requires a minimum of 40/100 on the written exam to pass (University Minimum Check).`;
+        reqClass = 'possible';
+      } else if (req.status === 'comfortable') {
+        reqMsg  = `✅ Need ${needDisplay}/100 on the written exam. Comfortable — keep it up!`;
+        reqClass = 'possible';
+      } else if (req.status === 'tight') {
+        reqMsg  = `⚡ Need ${needDisplay}/100 on the written exam. Tight — prioritise this subject!`;
+        reqClass = 'tight';
+      } else {
+        // hard
+        reqMsg  = `🔥 Need ${needDisplay}/100 on the written exam. Very difficult — start studying NOW!`;
+        reqClass = 'tight';
+      }
+    }
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <input class="field" type="text" placeholder="Subject name"
+            value="${escHtml(sub.name)}" style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;"
+            oninput="updateSubject(${sub.id},'name',this.value)" />
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="grade-badge">${grade}</span>
+          <button class="btn-danger" onclick="removeSubject(${sub.id})">✕</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:0.75rem;">
+        <div>
+          <label>Credits</label>
+          <select class="field" onchange="updateSubject(${sub.id},'credits',this.value)">
+            ${[1,2,3,4,5].map(c=>`<option value="${c}" ${sub.credits===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Attendance %</label>
+          <input class="field" type="number" min="0" max="100" value="${sub.attendance}"
+            oninput="updateSubject(${sub.id},'attendance',this.value);renderSubjects();" />
+        </div>
+        <div>
+          <label>Grade Points (proj)</label>
+          <div class="field" style="color:var(--accent1);font-weight:700;text-align:center;">${gp}.0</div>
+        </div>
+      </div>
+
+      <!-- Internals Slider -->
+      <div style="margin-bottom:0.5rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+          <label>Internal Marks ${lowInternals ? '<span style="color:var(--danger);font-size:0.7rem;font-weight:700;margin-left:4px;">⚠ Below Safety Min (35/50)</span>' : ''}</label>
+          <span class="font-pixel" style="font-size:1.1rem;color:${lowInternals ? 'var(--danger)' : 'var(--accent1)'};" id="int-val-${sub.id}">${sub.internals} / 50</span>
+        </div>
+        <input type="range" min="0" max="50" step="1" value="${sub.internals}"
+          style="${lowInternals ? 'accent-color:var(--danger)' : ''}"
+          oninput="updateSubject(${sub.id},'internals',this.value);document.getElementById('int-val-${sub.id}').textContent=this.value+' / 50';" />
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-secondary);">
+          <span>0</span><span style="color:var(--warn);">35 ⚑</span><span>50</span>
+        </div>
+        ${lowInternals ? `<div style="font-size:0.72rem;color:var(--danger);font-weight:600;margin-top:0.3rem;">⚠️ Internals below 35/50 safety minimum — risk of failing even with a good written exam.</div>` : ''}
+      </div>
+
+      <!-- Written Exam requirement -->
+      <div class="req-score ${reqClass}">${reqMsg}</div>
+      <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.35rem;">📝 Written Exam is out of <strong>100</strong> marks &nbsp;|&nbsp; University pass minimum: <strong>40/100</strong></div>
+
+      ${lowAtt ? `<div class="att-warning" style="margin-top:0.5rem;">⚠️ Low Attendance! Condonation Risk! Character Shield Broken.</div>` : ''}
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   RECALC LOOP
+═══════════════════════════════════════════ */
+function recalcAll() {
+  const oldBoss = state.bossHp;
+  const newBoss = computeBossHp();
+
+  // XP from raising internal marks (delta-based)
+  const totalInternals = state.subjects.reduce((a,s)=>a+s.internals,0);
+  // Give a small XP boost each recalc proportional to internals progress
+  // (we don't want to spam XP, so only give it via explicit actions)
+
+  state.bossHp = newBoss;
+
+  updateBoss(state.bossHp !== oldBoss ? oldBoss : null, newBoss);
+
+  // Shield status
+  const allSafe  = state.subjects.length > 0 && state.subjects.every(s => s.attendance >= 75);
+  const anyLow   = state.subjects.some(s => s.attendance < 75);
+  const shield   = document.getElementById('shield-status');
+  if (state.subjects.length === 0) {
+    shield.className = 'shield-active';
+    shield.textContent = '🛡️ Add subjects to check shield';
+  } else if (allSafe) {
+    shield.className = 'shield-active';
+    shield.textContent = '🛡️ Shield Buff Active';
+  } else {
+    shield.className = 'shield-broken';
+    shield.textContent = '💔 Shield Broken — Low Attendance!';
+  }
+
+  // GPA
+  const gpa = computeGPA(state.subjects);
+  const tgt = parseFloat(document.getElementById('target-gpa').value) || 8.5;
+  const summary = document.getElementById('gpa-summary');
+  if (state.subjects.length > 0) {
+    summary.style.display = 'block';
+    document.getElementById('proj-gpa').textContent = gpa || '—';
+    document.getElementById('target-gpa-display').textContent = tgt.toFixed(1);
+    const diff = gpa ? (parseFloat(gpa) - tgt) : null;
+    const statusEl = document.getElementById('gpa-status-text');
+    if (diff === null) {
+      statusEl.textContent = '—';
+    } else if (diff >= 0) {
+      statusEl.style.color = 'var(--success)';
+      statusEl.textContent = `✅ On track! +${diff.toFixed(2)} above target`;
+    } else {
+      statusEl.style.color = 'var(--warn)';
+      statusEl.textContent = `⚡ Need ${Math.abs(diff).toFixed(2)} more GPA points`;
+    }
+    document.getElementById('stat-gpa').textContent = gpa || '—';
+  } else {
+    summary.style.display = 'none';
+    document.getElementById('stat-gpa').textContent = '—';
+  }
+
+  // Gold from internals progress
+  const newGold = Math.floor(totalInternals / 5);
+  if (newGold > (state._lastInternalGold || 0)) {
+    const earned = newGold - (state._lastInternalGold || 0);
+    state.gold += earned;
+    state._lastInternalGold = newGold;
+  }
+
+  renderSubjects();
+  updateProfileUI();
+  checkAchievements();
+  saveState();
+}
+
+/* ═══════════════════════════════════════════
+   TASKS / QUESTS
+═══════════════════════════════════════════ */
+let taskIdCounter = 0;
+
+function addTask() {
+  const input = document.getElementById('new-task-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  const task = { id: ++taskIdCounter, text, done: false };
+  state.tasks.push(task);
+  input.value = '';
+  renderTasks();
+  saveState();
+}
+
+function toggleTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task || task.done) return;
+  task.done = true;
+  addXP(10);
+  state.gold += 5;
+  showToast(`✅ Quest complete! +10 XP, +5 Gold`);
+  renderTasks();
+  updateProfileUI();
+  checkAchievements();
+  saveState();
+}
+
+function removeTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  renderTasks();
+  saveState();
+}
+
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  if (!state.tasks.length) {
+    list.innerHTML = `<div style="color:var(--text-secondary);font-size:0.8rem;text-align:center;padding:0.5rem;">No quests yet!</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  state.tasks.forEach(task => {
+    const el = document.createElement('div');
+    el.className = `task-item${task.done ? ' done' : ''}`;
+    el.innerHTML = `
+      <div onclick="toggleTask(${task.id})" style="width:16px;height:16px;border-radius:4px;border:2px solid var(--accent1);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${task.done?'var(--accent1)':'transparent'}">
+        ${task.done ? '<span style="color:var(--btn-text);font-size:10px;font-weight:900;">✓</span>' : ''}
+      </div>
+      <span class="task-text" style="flex:1;font-size:0.85rem;" onclick="toggleTask(${task.id})">${escHtml(task.text)}</span>
+      ${task.done ? '' : `<button class="btn-danger" style="padding:0.1rem 0.4rem;font-size:0.7rem;" onclick="removeTask(${task.id})">✕</button>`}
+    `;
+    list.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   THEMES / SHOP
+═══════════════════════════════════════════ */
+function buyTheme(theme) {
+  if (state.ownedThemes.includes(theme)) {
+    applyTheme(theme);
+    return;
+  }
+  const cost = THEME_COSTS[theme];
+  if (state.gold < cost) {
+    showToast(`🪙 Not enough Gold! Need ${cost}G (have ${state.gold}G)`);
+    return;
+  }
+  state.gold -= cost;
+  state.ownedThemes.push(theme);
+  applyTheme(theme);
+  showToast(`🎨 Theme unlocked & applied!`);
+  updateShopUI();
+  updateProfileUI();
+  checkAchievements();
+  saveState();
+}
+
+function applyTheme(theme) {
+  state.activeTheme = theme;
+  document.documentElement.className = `theme-${theme}`;
+  // Matrix rain
+  const canvas = document.getElementById('matrix-canvas');
+  if (theme === 'matrix') {
+    canvas.style.display = 'block';
+    startMatrixRain();
+  } else {
+    canvas.style.display = 'none';
+    stopMatrixRain();
+  }
+  updateShopUI();
+  saveState();
+}
+
+function updateShopUI() {
+  ['cyberpunk','inferno','matrix'].forEach(t => {
+    const card    = document.getElementById(`theme-card-${t}`);
+    const btnWrap = document.getElementById(`btn-${t}`);
+    const owned   = state.ownedThemes.includes(t);
+    const active  = state.activeTheme === t;
+
+    card.classList.remove('owned','active-theme');
+    if (active)      card.classList.add('active-theme');
+    else if (owned)  card.classList.add('owned');
+
+    if (t === 'cyberpunk') {
+      btnWrap.innerHTML = active
+        ? `<span style="font-size:0.75rem;color:var(--success);font-weight:700;">✓ ACTIVE</span>`
+        : `<button class="btn-ghost" onclick="applyTheme('cyberpunk')">Apply</button>`;
+    } else {
+      const cost = THEME_COSTS[t];
+      if (active) {
+        btnWrap.innerHTML = `<span style="font-size:0.75rem;color:var(--success);font-weight:700;">✓ ACTIVE</span>`;
+      } else if (owned) {
+        btnWrap.innerHTML = `<button class="btn-ghost" onclick="applyTheme('${t}')">Apply</button>`;
+      } else {
+        const icon = t === 'inferno' ? '🔥' : '💻';
+        btnWrap.innerHTML = `<button class="btn-ghost" onclick="buyTheme('${t}')">${icon} Unlock — ${cost}G</button>`;
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════
+   MATRIX RAIN
+═══════════════════════════════════════════ */
+let matrixAnimId = null;
+
+function startMatrixRain() {
+  if (matrixAnimId) return;
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cols = Math.floor(canvas.width / 16);
+  const drops = Array(cols).fill(1);
+  const chars  = 'アイウエオカキクケコ01アBCDEF01234ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef';
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.04)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = '14px monospace';
+    drops.forEach((y, i) => {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * 16, y * 16);
+      if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+    matrixAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopMatrixRain() {
+  if (matrixAnimId) { cancelAnimationFrame(matrixAnimId); matrixAnimId = null; }
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/* ═══════════════════════════════════════════
+   ACHIEVEMENTS
+   ─────────────────────────────────────────
+   • unlockedAchievements is always loaded from / saved to localStorage.
+   • Dynamic revocation: "first_subject" is re-locked whenever the
+     subject list becomes completely empty, and localStorage is updated
+     immediately so the lock survives a page refresh.
+═══════════════════════════════════════════ */
+function checkAchievements() {
+  // ── Dynamic revocation: first_subject ──────────────────────────────
+  // If the student has deleted every subject, revoke the "First Scroll"
+  // achievement so it can be re-earned next time a subject is added.
+  const firstScrollId = 'first_subject';
+  if (state.subjects.length === 0) {
+    const idx = state.unlockedAchievements.indexOf(firstScrollId);
+    if (idx !== -1) {
+      state.unlockedAchievements.splice(idx, 1);
+      // Persist the revocation immediately
+      saveState();
+    }
+  }
+
+  // ── Check all achievements ──────────────────────────────────────────
+  // We iterate a snapshot so that newly-awarded XP/gold that triggers
+  // another achievement isn't processed mid-loop (avoids double-toasts).
+  const toUnlock = [];
+  ALL_ACHIEVEMENTS.forEach(ach => {
+    if (!state.unlockedAchievements.includes(ach.id) && ach.check(state)) {
+      toUnlock.push(ach);
+    }
+  });
+
+  toUnlock.forEach(ach => {
+    state.unlockedAchievements.push(ach.id);
+    // Award XP & gold outside addXP to avoid recursive achievement checks
+    state.xp   += 20;
+    state.gold += 15;
+    // Level-up check after XP award
+    while (state.xp >= xpForNextLevel(state.level)) {
+      state.xp -= xpForNextLevel(state.level);
+      state.level++;
+      showToast(`🌟 LEVEL UP! You are now Level ${state.level}!`);
+      const lvlEl = document.getElementById('display-level');
+      if (lvlEl) { lvlEl.classList.add('level-up-flash'); setTimeout(() => lvlEl.classList.remove('level-up-flash'), 700); }
+      state.gold += state.level * 10;
+    }
+    showToast(`🏆 Achievement Unlocked: "${ach.name}"! +20 XP, +15 Gold`);
+  });
+
+  // Always persist after any check so unlocks (and revocations) survive refresh
+  if (toUnlock.length > 0) {
+    saveState();
+  }
+
+  updateProfileUI();
+  renderAchievements();
+}
+
+function renderAchievements() {
+  const list = document.getElementById('achievements-list');
+  list.innerHTML = '';
+  ALL_ACHIEVEMENTS.forEach(ach => {
+    const unlocked = state.unlockedAchievements.includes(ach.id);
+    const el = document.createElement('div');
+    el.style.cssText = `display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-radius:6px;background:${unlocked?'rgba(0,200,150,0.1)':'var(--bg-card2)'};border:1px solid ${unlocked?'var(--success)':'var(--border)'};opacity:${unlocked?1:0.45};transition:all 0.2s;`;
+    el.innerHTML = `
+      <span style="font-size:1.1rem">${ach.icon}</span>
+      <div>
+        <div style="font-size:0.78rem;font-weight:600;color:${unlocked?'var(--success)':'var(--text-primary)'}">${ach.name}</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary)">${ach.desc}</div>
+      </div>
+      ${unlocked ? '<span style="margin-left:auto;font-size:0.7rem;color:var(--success);">✓</span>' : ''}
+    `;
+    list.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ═══════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════ */
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+function init() {
+  loadState();
+
+  // Sync max task/subject id counters
+  if (state.tasks.length) taskIdCounter = Math.max(...state.tasks.map(t=>t.id));
+  if (state.subjects.length) subjectIdCounter = Math.max(...state.subjects.map(s=>s.id));
+
+  // Restore form values
+  document.getElementById('player-name').value     = state.name;
+  document.getElementById('player-semester').value = state.semester;
+
+  // Restore avatar selection
+  document.querySelectorAll('.avatar-opt').forEach(el => {
+    if (el.dataset.avatar === state.avatar) el.classList.add('selected');
+  });
+
+  // Restore theme
+  applyTheme(state.activeTheme);
+
+  // Name / semester listeners
+  document.getElementById('player-name').addEventListener('input', () => { updateProfileUI(); saveState(); });
+  document.getElementById('player-semester').addEventListener('change', () => { updateProfileUI(); saveState(); });
+
+  // Initial renders
+  updateProfileUI();
+  renderTasks();
+  recalcAll();
+  renderAchievements();
+  updateShopUI();
+
+  // Boss init (no old HP for first paint)
+  updateBoss(null, state.bossHp);
+
+  // Resize matrix canvas
+  window.addEventListener('resize', () => {
+    if (state.activeTheme === 'matrix') {
+      const canvas = document.getElementById('matrix-canvas');
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+  });
+
+  showToast('⚔️ Welcome back, ' + (state.name || 'Hero') + '! Your quest awaits.');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
